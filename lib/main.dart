@@ -12,10 +12,10 @@ import 'package:flutter_native_timezone/flutter_native_timezone.dart';
 import 'package:provider/provider.dart';
 import 'package:timezone/data/latest_all.dart';
 import 'package:timezone/timezone.dart';
-
 import 'models/alarm_hive_storage.dart';
 import 'screens/home_screen.dart';
-
+import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:clock_app/providers/notification.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -24,17 +24,31 @@ void main() async {
 
 class MyApp extends StatefulWidget {
   const MyApp({Key? key}) : super(key: key);
-
   @override
   State<MyApp> createState() => _MyAppState();
 }
-
+class NotificationController {
+  /// Use this method to detect when the user taps on a notification or action button
+  @pragma("vm:entry-point")
+  static Future <void> onActionReceivedMethod(ReceivedAction receivedAction) async {
+    if (receivedAction.buttonKeyPressed == 'snooze'){
+      print('snoozezezezeze');
+      snooze();
+    }
+    if (receivedAction.buttonKeyPressed == 'close_snooze'){
+      print('snooze stopped');
+      AwesomeNotifications().cancel(20);
+    }
+  }
+}
 class _MyAppState extends State<MyApp> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
-
   @override
   void initState() {
+    AwesomeNotifications().setListeners(
+        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+    );
     _setUpLocalNotification();
     _requestPermissions();
     super.initState();

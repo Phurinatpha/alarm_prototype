@@ -4,6 +4,7 @@ import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
+import 'package:clock_app/providers/notification.dart';
 
 class AlarmModel extends ChangeNotifier {
   final AlarmsHiveLocalStorage _storage;
@@ -47,8 +48,8 @@ class AlarmModel extends ChangeNotifier {
       alarms!.indexOf(newAlarm),
     );
     notifyListeners();
-
-    await _scheduleAlarm(alarm);
+    //await _scheduleAlarm(alarm);
+    await alamSchedule(alarm);
   }
 
   Future<void> updateAlarm(AlarmDataModel alarm, int index) async {
@@ -71,7 +72,8 @@ class AlarmModel extends ChangeNotifier {
     notifyListeners();
 
     await _removeScheduledAlarm(alarm);
-    await _scheduleAlarm(newAlarm);
+    //await _scheduleAlarm(newAlarm);
+    await alamSchedule(newAlarm);
   }
 
   Future<void> deleteAlarm(AlarmDataModel alarm, int index) async {
