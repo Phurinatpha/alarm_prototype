@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/timezone.dart';
 import 'package:clock_app/providers/notification.dart';
+import 'package:awesome_notifications/awesome_notifications.dart';
 
 class AlarmModel extends ChangeNotifier {
   final AlarmsHiveLocalStorage _storage;
@@ -97,7 +98,7 @@ class AlarmModel extends ChangeNotifier {
   int alarmSort(alarm1, alarm2) => alarm1.time.compareTo(alarm2.time);
 
   Future<void> _removeScheduledAlarm(AlarmDataModel alarm) async {
-    final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+    /*final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
         FlutterLocalNotificationsPlugin();
 
     final List<PendingNotificationRequest> pendingNotificationRequests =
@@ -111,7 +112,20 @@ class AlarmModel extends ChangeNotifier {
       }
     } else {
       await flutterLocalNotificationsPlugin.cancel(alarm.id);
+    }*/
+
+    final notificationList =await AwesomeNotifications().listScheduledNotifications() as List;
+    if (alarm.weekdays.isNotEmpty) {
+      for (var notification in notificationList) {
+        // get grouped id
+        if ((notification / 10).floor() == alarm.id) {
+          await AwesomeNotifications().cancel(notification.id);
+        }
+      }
+    } else {
+      await  AwesomeNotifications().cancel(alarm.id);
     }
+
   }
 
   Future<void> _scheduleAlarm(AlarmDataModel alarm) async {
