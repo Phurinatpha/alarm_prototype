@@ -6,8 +6,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
-class HomeScreen extends StatelessWidget {
+class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
+
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  bool showDeleteButtons = false;
 
   @override
   Widget build(BuildContext context) {
@@ -17,30 +24,40 @@ class HomeScreen extends StatelessWidget {
         title: Text(
           'Shooting the Alarm',
           style: TextStyle(
-            fontSize: 26, //
+            fontSize: 26,
           ),
         ),
+        actions: [
+          IconButton(
+            icon: Icon(showDeleteButtons ? Icons.check : Icons.delete),
+            onPressed: () {
+              setState(() {
+                showDeleteButtons = !showDeleteButtons;
+              });
+            },
+          ),
+        ],
       ),
-      body: AlarmSheet(), // Your main content goes here
+      body: AlarmSheet(showDeleteButtons: showDeleteButtons),
       floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 15.0), // Adjust bottom padding as needed
+        padding: const EdgeInsets.only(bottom: 15.0),
         child: FloatingActionButton(
           onPressed: () {
             showModalBottomSheet(
               context: context,
               builder: (context) {
                 return FractionallySizedBox(
-                  heightFactor: 0.9, // Show half of the screen
+                  heightFactor: 0.9,
                   child: ModifyAlarmScreen(),
                 );
               },
             );
           },
           child: Icon(Icons.alarm_add),
-          heroTag: 'fab', // Customize the hero tag to ensure proper animations
-          backgroundColor: Colors.red, // Customize the FAB color
-          elevation: 4, // Add elevation for a raised effect
-          mini: false, // Ensure the FAB is not mini
+          heroTag: 'fab',
+          backgroundColor: Colors.red,
+          elevation: 4,
+          mini: false,
           shape: CircleBorder(),
         ),
       ),
@@ -52,14 +69,16 @@ class HomeScreen extends StatelessWidget {
 class AlarmSheet extends StatefulWidget {
   const AlarmSheet({
     Key? key,
+    required this.showDeleteButtons,
   }) : super(key: key);
+
+  final bool showDeleteButtons;
 
   @override
   State<AlarmSheet> createState() => _AlarmSheetState();
 }
 
-class _AlarmSheetState extends State<AlarmSheet>
-    with SingleTickerProviderStateMixin {
+class _AlarmSheetState extends State<AlarmSheet> with SingleTickerProviderStateMixin {
   final GlobalKey<AnimatedListState> _listKey = GlobalKey<AnimatedListState>();
 
   late AnimationController _controller;
@@ -103,76 +122,82 @@ class _AlarmSheetState extends State<AlarmSheet>
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-      child: Selector<AlarmModel, AlarmModel>(
-        shouldRebuild: (previous, next) {
-          if (next.state is AlarmCreated) {
-            final state = next.state as AlarmCreated;
-            _listKey.currentState?.insertItem(state.index);
-          } else if (next.state is AlarmUpdated) {
-            final state = next.state as AlarmUpdated;
-            if (state.index != state.newIndex) {
-              _listKey.currentState?.insertItem(state.newIndex);
-              _listKey.currentState?.removeItem(
-                state.index,
-                    (context, animation) => CardAlarmItem(
-                  alarm: state.alarm,
-                  animation: animation,
-                ),
-              );
-            }
-          }
-          return true;
-        },
-        selector: (_, model) => model,
-        builder: (context, model, child) {
-          return Column(
-            children: [
-              if (model.alarms != null)
-                Expanded( // Ensure the list takes up all available space
-                  child: AnimatedList(
-                    key: _listKey,
-                    // not recommended for a list with large number of items
-                    shrinkWrap: true,
-                    initialItemCount: model.alarms!.length,
-                    itemBuilder: (context, index, animation) {
-                      if (index >= model.alarms!.length) return Container();
-                      final alarm = model.alarms![index];
+    return Column( // Wrap the Column around the Expanded widget
+      children: [
+        Expanded( // Place the Expanded widget inside the Column
+          child: Selector<AlarmModel, AlarmModel>(
+            shouldRebuild: (previous, next) {
+              if (next.state is AlarmCreated) {
+                final state = next.state as AlarmCreated;
+                _listKey.currentState?.insertItem(state.index);
+              } else if (next.state is AlarmUpdated) {
+                final state = next.state as AlarmUpdated;
+                if (state.index != state.newIndex) {
+                  _listKey.currentState?.insertItem(state.newIndex);
+                  _listKey.currentState?.removeItem(
+                    state.index,
+                        (context, animation) => CardAlarmItem(
+                      alarm: state.alarm,
+                      animation: animation,
+                      showDeleteButton: widget.showDeleteButtons,
+                    ),
+                  );
+                }
+              }
+              return true;
+            },
+            selector: (_, model) => model,
+            builder: (context, model, child) {
+              return Column(
+                children: [
+                  if (model.alarms != null)
+                    Expanded( // Place the Expanded widget inside the inner Column
+                      child: AnimatedList(
+                        key: _listKey,
+                        shrinkWrap: true,
+                        initialItemCount: model.alarms!.length,
+                        itemBuilder: (context, index, animation) {
+                          if (index >= model.alarms!.length) return Container();
+                          final alarm = model.alarms![index];
 
-                      return CardAlarmItem(
-                        alarm: alarm,
-                        animation: animation,
-                        onDelete: () async {
-                          _listKey.currentState?.removeItem(
-                            index,
-                                (context, animation) => CardAlarmItem(
-                              alarm: alarm,
-                              animation: animation,
-                            ),
-                          );
-                          await model.deleteAlarm(alarm, index);
-                        },
-                        onTap: () {
-                          showModalBottomSheet(
-                            context: context,
-                            builder: (context) {
-                              return FractionallySizedBox(
-                                heightFactor: 0.9, // Show half of the screen
-                                child: ModifyAlarmScreen(
-                                  arg: ModifyAlarmScreenArg(alarm, index),
+                          return CardAlarmItem(
+                            alarm: alarm,
+                            animation: animation,
+                            onDelete: () async {
+                              _listKey.currentState?.removeItem(
+                                index,
+                                    (context, animation) => CardAlarmItem(
+                                  alarm: alarm,
+                                  animation: animation,
+                                  showDeleteButton: widget.showDeleteButtons,
                                 ),
                               );
+                              await model.deleteAlarm(alarm, index);
                             },
+                            onTap: () {
+                              showModalBottomSheet(
+                                context: context,
+                                builder: (context) {
+                                  return FractionallySizedBox(
+                                    heightFactor: 0.9,
+                                    child: ModifyAlarmScreen(
+                                      arg: ModifyAlarmScreenArg(alarm, index),
+                                    ),
+                                  );
+                                },
+                              );
+                            },
+                            showDeleteButton: widget.showDeleteButtons,
                           );
                         },
-                      );
-                    },
-                  ),
-                )
-            ],
-          );
-        },
-      ),
+                      ),
+                    )
+                ],
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 }
@@ -184,12 +209,14 @@ class CardAlarmItem extends StatelessWidget {
     required this.animation,
     this.onDelete,
     this.onTap,
+    required this.showDeleteButton,
   }) : super(key: key);
 
   final AlarmDataModel alarm;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
   final Animation<double> animation;
+  final bool showDeleteButton;
 
   @override
   Widget build(BuildContext context) {
@@ -210,21 +237,23 @@ class CardAlarmItem extends StatelessWidget {
             alarm.weekdays.isEmpty
                 ? 'Never'
                 : alarm.weekdays.length == 7
-                    ? 'Everyday'
-                    : alarm.weekdays
-                        .map((weekday) => fromWeekdayToStringShort(weekday))
-                        .join(', '),
+                ? 'Everyday'
+                : alarm.weekdays
+                .map((weekday) => fromWeekdayToStringShort(weekday))
+                .join(', '),
             style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
           ),
-          trailing: IconButton(
+          trailing: showDeleteButton
+              ? IconButton(
             icon: const Icon(Icons.cancel),
             color: Colors.red,
             onPressed: () async {
               if (onDelete != null) onDelete!();
             },
-          ),
+          )
+              : null,
           onTap: onTap,
         ),
       ),
