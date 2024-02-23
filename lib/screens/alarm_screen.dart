@@ -8,6 +8,7 @@ import 'package:clock_app/models/data_models/alarm_data_model.dart';
 
 class AlarmScreen extends StatelessWidget {
   static const routeName = '/alarmScreen';
+
   const AlarmScreen({Key? key}) : super(key: key);
 
   @override

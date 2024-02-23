@@ -47,7 +47,8 @@ android {
         applicationId "com.example.clock_app"
         //minSdkVersion flutter.minSdkVersion
         minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        //targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 34
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

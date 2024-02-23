@@ -1,11 +1,13 @@
+import 'dart:developer';
 
+import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'package:clock_app/helpers/clock_helper.dart';
 import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
 Future<void> alamSchedule(AlarmDataModel alarm) async {
-   AwesomeNotifications().initialize(
+   await AwesomeNotifications().initialize(
       null,
       [            // notification icon
         NotificationChannel(
@@ -16,7 +18,7 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
           importance: NotificationImportance.Max,
             defaultRingtoneType: DefaultRingtoneType.Alarm,
           enableVibration: true,
-          playSound: true
+          playSound: true,
 
         ),
 
@@ -43,6 +45,7 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
         displayOnForeground: true,
         wakeUpScreen: true,
         fullScreenIntent: true,
+        notificationLayout: NotificationLayout.BigText,
         category: NotificationCategory.Alarm,
         criticalAlert: true,
   ),
@@ -60,7 +63,8 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
   label: 'Snooze',
     enabled: true,
   )
-  ]
+  ],
+
   );
   }
 
@@ -81,6 +85,7 @@ void snooze() {
             enableVibration: true,
             locked: true,
 
+
         ),
 
       ]
@@ -96,7 +101,7 @@ void snooze() {
         displayOnForeground: true,
         wakeUpScreen: true,
         fullScreenIntent: true,
-        category: NotificationCategory.Service,
+        category: NotificationCategory.Reminder,
         actionType: ActionType.KeepOnTop,
 
 
@@ -124,7 +129,7 @@ void snooze() {
       content: NotificationContent( //simgple notification
         id: 20,
         channelKey: 'scheduled', //set configuration wuth key "basic"
-        title: 'Alarm at ${fromTimeToString(snoozeTime)}',
+        title: 'Alarm again  at ${fromTimeToString(snoozeTime)}',
         body:   'Ring Ring!!!',
         autoDismissible: false,
         displayOnBackground: true,
@@ -133,6 +138,7 @@ void snooze() {
         fullScreenIntent: true,
         category: NotificationCategory.Alarm,
         criticalAlert: true,
+
       ),
       actionButtons: [
         NotificationActionButton(

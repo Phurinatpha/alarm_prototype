@@ -16,9 +16,16 @@ import 'models/alarm_hive_storage.dart';
 import 'screens/home_screen.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:clock_app/providers/notification.dart';
+import 'package:wakelock/wakelock.dart';
+import 'screens/alarm_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-
+  await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
+    if (!isAllowed) {
+      return AwesomeNotifications().requestPermissionToSendNotifications();
+    }
+    return true;
+  });
   runApp(const MyApp());
 }
 
@@ -40,6 +47,20 @@ class NotificationController {
       AwesomeNotifications().cancel(20);
     }
   }
+  @pragma("vm:entry-point")
+  static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+    print("notification displayed");
+    if(receivedNotification.id == 20){
+      AwesomeNotifications().cancel(10);
+    }
+      }
+  @pragma("vm:entry-point")
+  static Future <void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
+    print("notification dismissed");
+        if(receivedAction.id == 10){
+          AwesomeNotifications().cancel(20);
+        }
+  }
 }
 class _MyAppState extends State<MyApp> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -48,6 +69,8 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     AwesomeNotifications().setListeners(
         onActionReceivedMethod: NotificationController.onActionReceivedMethod,
+        onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod,
     );
     _setUpLocalNotification();
     _requestPermissions();
