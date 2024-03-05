@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'package:clock_app/providers/model_prediction.dart';
 import 'package:clock_app/providers/alarm_provider.dart';
 import 'package:clock_app/providers/clock_type_provider.dart';
 import 'package:clock_app/providers/theme_provider.dart';
@@ -45,6 +45,7 @@ class NotificationController {
     if (receivedAction.buttonKeyPressed == 'close_snooze'){
       print('snooze stopped');
       AwesomeNotifications().cancel(20);
+
     }
   }
   @pragma("vm:entry-point")
