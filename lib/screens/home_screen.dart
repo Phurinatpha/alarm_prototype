@@ -1,12 +1,11 @@
 import 'package:clock_app/helpers/clock_helper.dart';
 import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:clock_app/providers/alarm_provider.dart';
-import 'package:clock_app/providers/notification.dart';
 import 'package:clock_app/screens/modify_alarm_screen.dart';
+import 'package:clock_app/screens/alarm_ar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
-import 'package:clock_app/providers/model_prediction.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -17,7 +16,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool showDeleteButtons = false;
-  String sleepPredictionResult = '';
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,94 +39,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Stack(
-          children:[
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-
-              child: Container(
-                height: 100,
-                child: Stack(
-                  children: [
-                    // Draggable for Sleep Prediction Result
-                    Draggable(
-                      data: 'Sleep Prediction Result: $sleepPredictionResult\nDrag and drop item to predict another',
-                      child: Container(
-                        color: Colors.green,
-                        child: Center(
-                          child: Text(
-                            sleepPredictionResult.isNotEmpty
-                                ? 'Sleep Prediction Result: $sleepPredictionResult'
-                                : 'Drag and Drop Time Here',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                      feedback: Container(
-                        width: double.infinity,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: Container(
-                            padding: EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Text(
-                              'Drag to Predict',
-                              style: TextStyle(
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    // DragTarget for Drop Area
-                    Positioned.fill(
-                      child: DragTarget<AlarmDataModel>(
-                        onAccept: (data) async {
-                          // Handle the item being accepted in the drop area
-                          String result = await sleepPredict(data.time.hour, data.time.minute);
-                          setState(() {
-                            sleepPredictionResult = result;
-                          });
-                        },
-                        builder: (context, candidateItems, rejectedItems) {
-                          bool isDragOver = candidateItems.isNotEmpty;
-                          return Container(
-                            color: isDragOver ? Colors.grey : Colors.transparent,
-                            child: Center(
-                              child: Text(
-                                isDragOver ? 'Drop Item Here' : '',
-                                style: TextStyle(
-                                  fontSize: 15,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Positioned(
-              top: 100, // Adjust this value based on the height of the drop area
-              left: 0,
-              right: 0,
-              bottom: 0,
-              child: AlarmSheet(showDeleteButtons: showDeleteButtons),
-            ),]),
+      body: AlarmSheet(showDeleteButtons: showDeleteButtons),
       floatingActionButton: Padding(
         padding: const EdgeInsets.only(bottom: 15.0),
         child: FloatingActionButton(
@@ -151,7 +63,22 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      );
+      persistentFooterButtons: [
+        // Add a button with purple color
+        ElevatedButton(
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => UnityDemoScreen()), // Navigate to UnityWidgetScreen
+            );
+          },
+          child: Text('Open Unity Widget'),
+          style: ElevatedButton.styleFrom(
+            primary: Colors.purple, // Set button color to purple
+          ),
+        ),
+      ],
+    );
   }
 }
 
@@ -309,102 +236,44 @@ class CardAlarmItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-    double cardWidth = screenWidth *0.98;
-    return LongPressDraggable(
-      // Add the key to ensure unique identification of each draggable item
-      key: ValueKey(alarm.id),
-      data: alarm, // Pass the alarm data as the drag data
-      onDragStarted: () {
-        // Add any necessary logic when dragging starts
-      },
-      onDraggableCanceled: (velocity, offset) {
-        // Add any necessary logic when dragging is canceled
-      },
-      feedback: Opacity(
-        opacity: 0.5,
-        child: SizedBox(
-            width: cardWidth, // Set a fixed width or use constraints as needed
-            height: 100.0, child: Card(
-          child: ListTile(
-            title: Text(
-              fromTimeToString(alarm.time),
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            subtitle: Text(
-              alarm.weekdays.isEmpty
-                  ? 'Never'
-                  : alarm.weekdays.length == 7
-                  ? 'Everyday'
-                  : alarm.weekdays
-                  .map((weekday) => fromWeekdayToStringShort(weekday))
-                  .join(', '),
-              style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            trailing: showDeleteButton
-                ? IconButton(
-              icon: const Icon(Icons.cancel),
-              color: Colors.red,
-              onPressed: () async {
-                if (onDelete != null) onDelete!();
-              },
-            )
-                : null,
-          ),
-        )),
+    return SlideTransition(
+      position: animation.drive(
+        Tween<Offset>(
+          begin: const Offset(1.0, 0.0),
+          end: const Offset(0.0, 0.0),
+        ).chain(CurveTween(curve: Curves.elasticInOut)),
       ),
-      childWhenDragging: SizedBox( width: cardWidth,
-        height: 100.0, child: Container(
-    decoration: BoxDecoration(
-    color: Colors.grey.withOpacity(0.5),
-    borderRadius: BorderRadius.circular(10.0),
-    ),)),
-      feedbackOffset: Offset(0, 10),
-      child: SlideTransition(
-        position: animation.drive(
-          Tween<Offset>(
-            begin: const Offset(1.0, 0.0),
-            end: const Offset(0.0, 0.0),
-          ).chain(CurveTween(curve: Curves.elasticInOut)),
-        ),
-        child: SizedBox(
-    width: 100, // Set a fixed width or use constraints as needed
-    height: 100.0,
-    child: Card(
-          child: ListTile(
-            title: Text(
-              fromTimeToString(alarm.time),
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            subtitle: Text(
-              alarm.weekdays.isEmpty
-                  ? 'Never'
-                  : alarm.weekdays.length == 7
-                  ? 'Everyday'
-                  : alarm.weekdays
-                  .map((weekday) =>
-                  fromWeekdayToStringShort(weekday))
-                  .join(', '),
-              style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface,
-              ),
-            ),
-            trailing: showDeleteButton
-                ? IconButton(
-              icon: const Icon(Icons.cancel),
-              color: Colors.red,
-              onPressed: () async {
-                if (onDelete != null) onDelete!();
-              },
-            )
-                : null,
-            onTap: onTap,
+      child: Card(
+        child: ListTile(
+          title: Text(
+            fromTimeToString(alarm.time),
+            style: Theme.of(context).textTheme.headline4,
           ),
+          subtitle: Text(
+            alarm.weekdays.isEmpty
+                ? 'Never'
+                : alarm.weekdays.length == 7
+                ? 'Everyday'
+                : alarm.weekdays
+                .map((weekday) => fromWeekdayToStringShort(weekday))
+                .join(', '),
+            style: Theme.of(context).textTheme.bodyText2?.copyWith(
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+          ),
+          trailing: showDeleteButton
+              ? IconButton(
+            icon: const Icon(Icons.cancel),
+            color: Colors.red,
+            onPressed: () async {
+              if (onDelete != null) onDelete!();
+            },
+          )
+              : null,
+          onTap: onTap,
         ),
       ),
-      ));
+    );
   }
 }
 

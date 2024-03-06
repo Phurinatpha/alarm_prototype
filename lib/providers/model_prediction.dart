@@ -1,4 +1,5 @@
 import 'package:tflite_flutter/tflite_flutter.dart';
+
 Future<String> sleepPredict(hour,minute) async {
   try {
     final interpreter = await Interpreter.fromAsset('assets/model.tflite');
@@ -18,6 +19,7 @@ Future<String> sleepPredict(hour,minute) async {
   }
  return "";
 }
+
 String sleepFormat(x){
   var data = x[0] ;
   String hour =  (data~/60).toString();

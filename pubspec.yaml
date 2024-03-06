@@ -45,6 +45,10 @@ dependencies:
   slide_to_act: ^2.0.1
   wakelock: ^0.5.6
   tflite_flutter: 0.10.4
+
+  flutter_unity_widget: ^2022.2.0
+
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
