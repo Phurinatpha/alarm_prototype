@@ -3,6 +3,7 @@ import 'package:clock_app/providers/model_prediction.dart';
 import 'package:clock_app/providers/alarm_provider.dart';
 import 'package:clock_app/providers/clock_type_provider.dart';
 import 'package:clock_app/providers/theme_provider.dart';
+import 'package:clock_app/screens/alarm_ar.dart';
 import 'package:clock_app/screens/modify_alarm_screen.dart';
 import 'package:clock_app/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -35,45 +36,13 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
-class NotificationController {
-  /// Use this method to detect when the user taps on a notification or action button
-  @pragma("vm:entry-point")
-  static Future <void> onActionReceivedMethod(ReceivedAction receivedAction) async {
-    if (receivedAction.buttonKeyPressed == 'snooze'){
-      print('snoozezezezeze');
-      snooze();
-    }
-    if (receivedAction.buttonKeyPressed == 'close_snooze'){
-      print('snooze stopped');
-      AwesomeNotifications().cancel(20);
 
-    }
-  }
-  @pragma("vm:entry-point")
-  static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
-    print("notification displayed");
-    if(receivedNotification.id == 20){
-      AwesomeNotifications().cancel(10);
-    }
-      }
-  @pragma("vm:entry-point")
-  static Future <void> onDismissActionReceivedMethod(ReceivedAction receivedAction) async {
-    print("notification dismissed");
-        if(receivedAction.id == 10){
-          AwesomeNotifications().cancel(20);
-        }
-  }
-}
+
 class _MyAppState extends State<MyApp> {
   final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
       FlutterLocalNotificationsPlugin();
   @override
   void initState() {
-    AwesomeNotifications().setListeners(
-        onActionReceivedMethod: NotificationController.onActionReceivedMethod,
-        onNotificationDisplayedMethod: NotificationController.onNotificationDisplayedMethod,
-        onDismissActionReceivedMethod: NotificationController.onDismissActionReceivedMethod,
-    );
     _setUpLocalNotification();
     _requestPermissions();
     super.initState();

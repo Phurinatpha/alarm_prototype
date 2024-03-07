@@ -51,7 +51,7 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
         key: 'close',
         label: 'Close',
         enabled: true,
-        actionType: ActionType.DisabledAction,
+        actionType: ActionType.DismissAction,
         color: Colors.redAccent,
       ),
       NotificationActionButton(
@@ -131,7 +131,7 @@ void snooze() {
           key: 'close',
           label: 'Close',
           enabled: true,
-          actionType: ActionType.DisabledAction,
+          actionType: ActionType.DismissAction,
           color: Colors.redAccent,
         ),
         NotificationActionButton(

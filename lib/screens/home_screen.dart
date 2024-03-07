@@ -1,11 +1,45 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:clock_app/helpers/clock_helper.dart';
 import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:clock_app/providers/alarm_provider.dart';
 import 'package:clock_app/screens/modify_alarm_screen.dart';
-import 'package:clock_app/screens/alarm_ar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
+import 'package:clock_app/providers/model_prediction.dart';
+
+import '../providers/notification.dart';
+import 'alarm_ar.dart';
+class NotificationController {
+  /// Use this method to detect when the user taps on a notification or action button
+  @pragma("vm:entry-point")
+  static Future <void> onActionReceivedMethod(context, ReceivedAction receivedAction) async {
+    if (receivedAction.buttonKeyPressed == 'snooze'){
+      snooze();
+    }
+    if (receivedAction.buttonKeyPressed == 'close_snooze'){
+      print('snooze stopped');
+      AwesomeNotifications().cancel(20);
+      ///move open alarm_ar to here code in home_screen.dart line69-72
+    }
+  }
+  @pragma("vm:entry-point")
+  static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
+    print("notification displayed");
+    if(receivedNotification.id == 20){
+      AwesomeNotifications().cancel(10);
+    }
+  }
+  @pragma("vm:entry-point")
+  static Future <void> onDismissActionReceivedMethod(context,ReceivedAction receivedAction) async {
+    print("notification dismissed");
+    AwesomeNotifications().cancel(receivedAction.id ?? 20);
+    await Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => UnityDemoScreen()),
+    );
+  }
+}
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -19,6 +53,18 @@ class _HomeScreenState extends State<HomeScreen> {
   String sleepPredictionResult = '';
   String wakeupTime = '';
   @override
+  void initState() {
+    AwesomeNotifications().setListeners(
+      onActionReceivedMethod: (ReceivedAction receivedAction) =>
+          NotificationController.onActionReceivedMethod(
+              context, receivedAction),
+      onNotificationDisplayedMethod: NotificationController
+          .onNotificationDisplayedMethod,
+      onDismissActionReceivedMethod: (ReceivedAction receivedAction) =>
+          NotificationController.onDismissActionReceivedMethod(
+              context, receivedAction),
+    );
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -214,23 +260,6 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      persistentFooterButtons: [
-        // Add a button with purple color
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      UnityDemoScreen()), // Navigate to UnityWidgetScreen
-            );
-          },
-          child: Text('Open Unity Widget'),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.purple, // Set button color to purple
-          ),
-        ),
-      ],
     );
   }
 }
@@ -393,44 +422,99 @@ class CardAlarmItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SlideTransition(
-      position: animation.drive(
-        Tween<Offset>(
-          begin: const Offset(1.0, 0.0),
-          end: const Offset(0.0, 0.0),
-        ).chain(CurveTween(curve: Curves.elasticInOut)),
-      ),
-      child: Card(
-        child: ListTile(
-          title: Text(
+    double screenWidth = MediaQuery.of(context).size.width;
+    double cardWidth = screenWidth *0.98;
+    return LongPressDraggable(
+      // Add the key to ensure unique identification of each draggable item
+      key: ValueKey(alarm.id),
+      data: alarm, // Pass the alarm data as the drag data
+      onDragStarted: () {
+        // Add any necessary logic when dragging starts
+      },
+      onDraggableCanceled: (velocity, offset) {
+        // Add any necessary logic when dragging is canceled
+      },
+      feedback: Opacity(
+        opacity: 0.5,
+        child: SizedBox(
+            width: cardWidth, // Set a fixed width or use constraints as needed
+            height: 100.0, child: Card(
+            child: ListTile(
+            title: Text(
             fromTimeToString(alarm.time),
-            style: Theme.of(context).textTheme.headline4,
-          ),
-          subtitle: Text(
-            alarm.weekdays.isEmpty
-                ? 'Never'
-                : alarm.weekdays.length == 7
-                    ? 'Everyday'
-                    : alarm.weekdays
-                        .map((weekday) => fromWeekdayToStringShort(weekday))
-                        .join(', '),
-            style: Theme.of(context).textTheme.bodyText2?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
-                ),
-          ),
-          trailing: showDeleteButton
-              ? IconButton(
-                  icon: const Icon(Icons.cancel),
-                  color: Colors.red,
-                  onPressed: () async {
-                    if (onDelete != null) onDelete!();
-                  },
-                )
-              : null,
-          onTap: onTap,
+        style: Theme.of(context).textTheme.headline4,
+      ),
+      subtitle: Text(
+        alarm.weekdays.isEmpty
+            ? 'Never'
+            : alarm.weekdays.length == 7
+            ? 'Everyday'
+            : alarm.weekdays
+            .map((weekday) => fromWeekdayToStringShort(weekday))
+            .join(', '),
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
         ),
       ),
-    );
+      trailing: showDeleteButton
+          ? IconButton(
+        icon: const Icon(Icons.cancel),
+        color: Colors.red,
+        onPressed: () async {
+          if (onDelete != null) onDelete!();
+        },
+      )
+          : null,
+    ),
+        )),
+      ),
+      childWhenDragging: SizedBox( width: cardWidth,
+          height: 100.0, child: Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(0.5),
+              borderRadius: BorderRadius.circular(10.0),
+            ),)),
+      feedbackOffset: Offset(0, 10),
+      child: SlideTransition(
+        position: animation.drive(
+          Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: const Offset(0.0, 0.0),
+          ).chain(CurveTween(curve: Curves.elasticInOut)),
+        ),
+        child: SizedBox(
+            width: 100, // Set a fixed width or use constraints as needed
+            height: 100.0,
+            child: Card(
+            child: ListTile(
+            title: Text(
+            fromTimeToString(alarm.time),
+        style: Theme.of(context).textTheme.headline4,
+      ),
+      subtitle: Text(
+        alarm.weekdays.isEmpty
+            ? 'Never'
+            : alarm.weekdays.length == 7
+            ? 'Everyday'
+            : alarm.weekdays
+            .map((weekday) =>
+            fromWeekdayToStringShort(weekday))
+            .join(', '),
+        style: Theme.of(context).textTheme.bodyText2?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
+        ),
+      ),
+      trailing: showDeleteButton
+          ? IconButton(
+        icon: const Icon(Icons.cancel),
+        color: Colors.red,
+        onPressed: () async {
+          if (onDelete != null) onDelete!();
+        },
+      )
+          : null,
+      onTap: onTap,
+    ),    ))));
   }
 }
 
