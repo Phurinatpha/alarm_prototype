@@ -18,6 +18,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool showDeleteButtons = false;
   String sleepPredictionResult = '';
+  String wakeupTime = '';
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,44 +47,102 @@ class _HomeScreenState extends State<HomeScreen> {
               top: 0,
               left: 0,
               right: 0,
-
               child: Container(
+                width: double.infinity,
                 height: 100,
                 child: Stack(
                   children: [
                     // Draggable for Sleep Prediction Result
                     Draggable(
-                      data: 'Sleep Prediction Result: $sleepPredictionResult\nDrag and drop item to predict another',
+                      data: 'Sleep Prediction  $sleepPredictionResult\nDrag and drop item to predict another',
                       child: Container(
-                        color: Colors.green,
-                        child: Center(
-                          child: Text(
-                            sleepPredictionResult.isNotEmpty
-                                ? 'Sleep Prediction Result: $sleepPredictionResult'
-                                : 'Drag and Drop Time Here',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: Colors.white,
+                        width: double.infinity,
+                        height: 100,
+                        color: Colors.red,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children:[
+                            Expanded(
+                              child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            if (sleepPredictionResult.isNotEmpty)
+                            Text(
+                              sleepPredictionResult.isNotEmpty
+                                  ? 'Sleep Time \n $sleepPredictionResult'
+                                  : 'Drop Time Here',
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18.0,
+                              ),
                             ),
-                          ),
+                          ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (sleepPredictionResult.isEmpty)
+                                    Text(
+                                      'Drag Time Here', // You need to replace this with the actual method to calculate wake-up time.
+                                      maxLines: 1,
+                                      overflow: TextOverflow.clip,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (sleepPredictionResult.isNotEmpty)
+                                    Text(
+                                      'Wake Up \n $wakeupTime', // You need to replace this with the actual method to calculate wake-up time.
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                      feedback: Container(
-                        width: double.infinity,
-                        child: Material(
-                          type: MaterialType.transparency,
-                          child: Container(
-                            padding: EdgeInsets.all(8.0),
-                            decoration: BoxDecoration(
-                              color: Colors.green.withOpacity(0.5),
-                              borderRadius: BorderRadius.circular(8.0),
-                            ),
-                            child: Text(
-                              'Drag to Predict',
-                              style: TextStyle(
-                                color: Colors.white,
+                      feedback: Positioned.fill(
+                        child: Container(
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Container(
+                              padding: EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Text(
+                                'Drag to Predict',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
@@ -98,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           String result = await sleepPredict(data.time.hour, data.time.minute);
                           setState(() {
                             sleepPredictionResult = result;
+                            wakeupTime =   wakeupFormat(data.time.hour,data.time.minute);
                           });
                         },
                         builder: (context, candidateItems, rejectedItems) {
@@ -106,10 +166,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             color: isDragOver ? Colors.grey : Colors.transparent,
                             child: Center(
                               child: Text(
-                                isDragOver ? 'Drop Item Here' : '',
-                                style: TextStyle(
-                                  fontSize: 15,
+                                isDragOver ? 'Drop Time Here' : '',
+                                style: const TextStyle(
                                   color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
                                 ),
                               ),
                             ),

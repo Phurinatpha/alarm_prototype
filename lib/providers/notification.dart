@@ -16,7 +16,7 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
           channelDescription: 'Notification channel for basic tests',
           channelShowBadge: true,
           importance: NotificationImportance.Max,
-            defaultRingtoneType: DefaultRingtoneType.Alarm,
+          defaultRingtoneType: DefaultRingtoneType.Alarm,
           enableVibration: true,
           playSound: true,
 
