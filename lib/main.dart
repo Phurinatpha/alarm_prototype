@@ -18,6 +18,7 @@ import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:clock_app/providers/notification.dart';
 import 'package:wakelock/wakelock.dart';
 import 'screens/alarm_screen.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await AwesomeNotifications().isNotificationAllowed().then((isAllowed) {
