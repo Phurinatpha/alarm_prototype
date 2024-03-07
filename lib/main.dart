@@ -35,6 +35,7 @@ class MyApp extends StatefulWidget {
   @override
   State<MyApp> createState() => _MyAppState();
 }
+
 class NotificationController {
   /// Use this method to detect when the user taps on a notification or action button
   @pragma("vm:entry-point")
@@ -46,7 +47,7 @@ class NotificationController {
     if (receivedAction.buttonKeyPressed == 'close_snooze'){
       print('snooze stopped');
       AwesomeNotifications().cancel(20);
-
+      ///move open alarm_ar to here code in home_screen.dart line69-72
     }
   }
   @pragma("vm:entry-point")

@@ -2,7 +2,6 @@ import 'package:clock_app/helpers/clock_helper.dart';
 import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:clock_app/providers/alarm_provider.dart';
 import 'package:clock_app/screens/modify_alarm_screen.dart';
-import 'package:clock_app/screens/alarm_ar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
@@ -63,21 +62,21 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      persistentFooterButtons: [
-        // Add a button with purple color
-        ElevatedButton(
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => UnityDemoScreen()), // Navigate to UnityWidgetScreen
-            );
-          },
-          child: Text('Open Unity Widget'),
-          style: ElevatedButton.styleFrom(
-            primary: Colors.purple, // Set button color to purple
-          ),
-        ),
-      ],
+      // persistentFooterButtons: [
+      //   // Add a button with purple color
+      //   ElevatedButton(
+      //     onPressed: () {
+      //       Navigator.push(
+      //         context,
+      //         MaterialPageRoute(builder: (context) => UnityDemoScreen()), // Navigate to UnityWidgetScreen
+      //       );
+      //     },
+      //     child: Text('Open Unity Widget'),
+      //     style: ElevatedButton.styleFrom(
+      //       primary: Colors.purple, // Set button color to purple
+      //     ),
+      //   ),
+      // ],
     );
   }
 }

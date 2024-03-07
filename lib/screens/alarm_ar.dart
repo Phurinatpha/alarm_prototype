@@ -35,6 +35,20 @@ class _UnityDemoScreenState extends State<UnityDemoScreen> {
     );
   }
 
+  void onUnityMessage(message) {
+    print('+++++++++++++++++++++++++++++++++Received message from unity: ${message.toString()}');
+    if (message == "close") {
+      // Unload the Unity player
+      _unloadUnityPlayer();
+    }
+  }
+
+  void _unloadUnityPlayer() {
+    // Add code to unload the Unity player here
+    // For example, you can use Navigator.pop to go back
+    Navigator.pop(context);
+  }
+
   // Callback that connects the created controller to the unity controller
   void onUnityCreated(controller) {
     _unityWidgetController = controller;
