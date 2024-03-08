@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 import 'package:clock_app/providers/model_prediction.dart';
-
+import 'package:clock_app/theme.dart';
 import '../providers/notification.dart';
 import 'alarm_ar.dart';
 class NotificationController {
@@ -41,228 +41,235 @@ class NotificationController {
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({Key? key}) : super(key: key);
+  class HomeScreen extends StatefulWidget {
+    const HomeScreen({Key? key}) : super(key: key);
 
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  bool showDeleteButtons = false;
-  String sleepPredictionResult = '';
-  String wakeupTime = '';
-  @override
-  void initState() {
-    AwesomeNotifications().setListeners(
-      onActionReceivedMethod: (ReceivedAction receivedAction) =>
-          NotificationController.onActionReceivedMethod(
-              context, receivedAction),
-      onNotificationDisplayedMethod: NotificationController
-          .onNotificationDisplayedMethod,
-      onDismissActionReceivedMethod: (ReceivedAction receivedAction) =>
-          NotificationController.onDismissActionReceivedMethod(
-              context, receivedAction),
-    );
+    @override
+    State<HomeScreen> createState() => _HomeScreenState();
   }
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        centerTitle: false,
-        title: Text(
-          'Shooting the Alarm',
-          style: TextStyle(
-            fontSize: 26,
+
+  class _HomeScreenState extends State<HomeScreen> {
+    bool showDeleteButtons = false;
+    String sleepPredictionResult = '';
+    String wakeupTime = '';
+    @override
+    void initState() {
+      AwesomeNotifications().setListeners(
+        onActionReceivedMethod: (ReceivedAction receivedAction) =>
+            NotificationController.onActionReceivedMethod(
+                context, receivedAction),
+        onNotificationDisplayedMethod: NotificationController
+            .onNotificationDisplayedMethod,
+        onDismissActionReceivedMethod: (ReceivedAction receivedAction) =>
+            NotificationController.onDismissActionReceivedMethod(
+                context, receivedAction),
+      );
+    }
+    Widget build(BuildContext context) {
+      final dark = darkThemeData(context);
+      return Theme(
+        data: dark,
+        child: Scaffold(
+          appBar: AppBar(
+            backgroundColor: Colors.red,
+            centerTitle: false,
+            title: Text(
+              'Shooting the Alarm',
+              style: TextStyle(
+                fontSize: 26,
+              ),
+            ),
+        
+            actions: [
+              IconButton(
+                icon: Icon(showDeleteButtons ? Icons.check : Icons.delete),
+                onPressed: () {
+                  setState(() {
+                    showDeleteButtons = !showDeleteButtons;
+                  });
+                },
+              ),
+            ],
           ),
-        ),
-        actions: [
-          IconButton(
-            icon: Icon(showDeleteButtons ? Icons.check : Icons.delete),
-            onPressed: () {
-              setState(() {
-                showDeleteButtons = !showDeleteButtons;
-              });
-            },
-          ),
-        ],
-      ),
-      body: Stack(children: [
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: Container(
-            width: double.infinity,
-            height: 100,
-            child: Stack(
-              children: [
-                // Draggable for Sleep Prediction Result
-                Draggable(
-                  data:
-                      'Sleep Prediction  $sleepPredictionResult\nDrag and drop item to predict another',
-                  child: Container(
-                    width: double.infinity,
-                    height: 100,
-                    color: Colors.red,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (sleepPredictionResult.isNotEmpty)
-                                Text(
-                                  sleepPredictionResult.isNotEmpty
-                                      ? 'Sleep Time \n $sleepPredictionResult'
-                                      : 'Drop Time Here',
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                            ],
-                          ),
+          body: Stack(children: [
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                width: double.infinity,
+                height: 100,
+                child: Stack(
+                  children: [
+                    // Draggable for Sleep Prediction Result
+                    Draggable(
+                      data:
+                          'Sleep Prediction  $sleepPredictionResult\nDrag and drop item to predict another',
+                      child: Container(
+                        width: double.infinity,
+                        height: 100,
+                        color:  const Color(0xFF333332),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (sleepPredictionResult.isNotEmpty)
+                                    Text(
+                                      sleepPredictionResult.isNotEmpty
+                                          ? 'Sleep Time \n $sleepPredictionResult'
+                                          : 'Drop Time Here',
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (sleepPredictionResult.isEmpty)
+                                    Text(
+                                      'Drag Time Here', // You need to replace this with the actual method to calculate wake-up time.
+                                      maxLines: 1,
+                                      overflow: TextOverflow.clip,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                            Expanded(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (sleepPredictionResult.isNotEmpty)
+                                    Text(
+                                      'Wake Up \n $wakeupTime', // You need to replace this with the actual method to calculate wake-up time.
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18.0,
+                                      ),
+                                    ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (sleepPredictionResult.isEmpty)
-                                Text(
-                                  'Drag Time Here', // You need to replace this with the actual method to calculate wake-up time.
-                                  maxLines: 1,
-                                  overflow: TextOverflow.clip,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        Expanded(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              if (sleepPredictionResult.isNotEmpty)
-                                Text(
-                                  'Wake Up \n $wakeupTime', // You need to replace this with the actual method to calculate wake-up time.
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18.0,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  feedback: Positioned.fill(
-                    child: Container(
-                      child: Material(
-                        type: MaterialType.transparency,
+                      ),
+                      feedback: Positioned.fill(
                         child: Container(
-                          padding: EdgeInsets.all(8.0),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.5),
-                            borderRadius: BorderRadius.circular(8.0),
-                          ),
-                          child: const Text(
-                            'Drag to Predict',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                          child: Material(
+                            type: MaterialType.transparency,
+                            child: Container(
+                              padding: EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                color: Colors.green.withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8.0),
+                              ),
+                              child: const Text(
+                                'Drag to Predict',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                // DragTarget for Drop Area
-                Positioned.fill(
-                  child: DragTarget<AlarmDataModel>(
-                    onAccept: (data) async {
-                      // Handle the item being accepted in the drop area
-                      String result =
-                          await sleepPredict(data.time.hour, data.time.minute);
-                      setState(() {
-                        sleepPredictionResult = result;
-                        wakeupTime =
-                            wakeupFormat(data.time.hour, data.time.minute);
-                      });
-                    },
-                    builder: (context, candidateItems, rejectedItems) {
-                      bool isDragOver = candidateItems.isNotEmpty;
-                      return Container(
-                        color: isDragOver ? Colors.grey : Colors.transparent,
-                        child: Center(
-                          child: Text(
-                            isDragOver ? 'Drop Time Here' : '',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18.0,
+                    // DragTarget for Drop Area
+                    Positioned.fill(
+                      child: DragTarget<AlarmDataModel>(
+                        onAccept: (data) async {
+                          // Handle the item being accepted in the drop area
+                          String result =
+                              await sleepPredict(data.time.hour, data.time.minute);
+                          setState(() {
+                            sleepPredictionResult = result;
+                            wakeupTime =
+                                wakeupFormat(data.time.hour, data.time.minute);
+                          });
+                        },
+                        builder: (context, candidateItems, rejectedItems) {
+                          bool isDragOver = candidateItems.isNotEmpty;
+                          return Container(
+                            color: isDragOver ?  const Color(0xFF717171) : Colors.transparent,
+                            child: Center(
+                              child: Text(
+                                isDragOver ? 'Drop Time Here' : '',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18.0,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      );
-                    },
-                  ),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
-          ),
-        ),
-        Positioned(
-          top: 100, // Adjust this value based on the height of the drop area
-          left: 0,
-          right: 0,
-          bottom: 0,
-          child: AlarmSheet(showDeleteButtons: showDeleteButtons),
-        ),
-      ]),
-      floatingActionButton: Padding(
-        padding: const EdgeInsets.only(bottom: 15.0),
-        child: FloatingActionButton(
-          onPressed: () {
-            showModalBottomSheet(
-              context: context,
-              builder: (context) {
-                return FractionallySizedBox(
-                  heightFactor: 0.9,
-                  child: ModifyAlarmScreen(),
+            Positioned(
+              top: 100, // Adjust this value based on the height of the drop area
+              left: 0,
+              right: 0,
+              bottom: 0,
+              child: AlarmSheet(showDeleteButtons: showDeleteButtons),
+            ),
+          ]),
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.only(bottom: 15.0),
+            child: FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  builder: (context) {
+                    return FractionallySizedBox(
+                      heightFactor: 0.9,
+                      child: ModifyAlarmScreen(),
+                    );
+                  },
                 );
               },
-            );
-          },
-          child: Icon(Icons.alarm_add),
-          heroTag: 'fab',
-          backgroundColor: Colors.red,
-          elevation: 4,
-          mini: false,
-          shape: CircleBorder(),
+              child: Icon(Icons.alarm_add),
+              heroTag: 'fab',
+              backgroundColor: Colors.red,
+              elevation: 4,
+              mini: false,
+              shape: CircleBorder(),
+              foregroundColor: Colors.white,
+            ),
+          ),
+          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-    );
+      );
+    }
   }
-}
 
 class AlarmSheet extends StatefulWidget {
   const AlarmSheet({
@@ -439,6 +446,7 @@ class CardAlarmItem extends StatelessWidget {
         child: SizedBox(
             width: cardWidth, // Set a fixed width or use constraints as needed
             height: 100.0, child: Card(
+            color: const Color(0xFF717171),
             child: ListTile(
             title: Text(
             fromTimeToString(alarm.time),
@@ -486,6 +494,7 @@ class CardAlarmItem extends StatelessWidget {
             width: 100, // Set a fixed width or use constraints as needed
             height: 100.0,
             child: Card(
+              color: const Color(0xFF333332),
             child: ListTile(
             title: Text(
             fromTimeToString(alarm.time),
