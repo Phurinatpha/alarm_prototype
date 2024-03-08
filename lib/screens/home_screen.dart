@@ -23,6 +23,7 @@ class NotificationController {
       ///move open alarm_ar to here code in home_screen.dart line69-72
     }
   }
+
   @pragma("vm:entry-point")
   static Future <void> onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {
     print("notification displayed");

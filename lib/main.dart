@@ -91,6 +91,7 @@ class _MyAppState extends State<MyApp> {
       android: initializationSettingsAndroid,
       iOS: initializationSettingsIOS,
     );
+
     await flutterLocalNotificationsPlugin.initialize(initializationSettings,
         onSelectNotification: (String? payload) async {
       if (payload != null) {
