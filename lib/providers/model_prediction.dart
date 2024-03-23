@@ -1,6 +1,8 @@
 import 'package:tflite_flutter/tflite_flutter.dart';
 
+///ฟังก์ชันdata model ที่ใช้ prediction เวลาการนอนหลับ
 Future<String> sleepPredict(hour, minute) async {
+  ///โหลดโมเดลtensorflowlite
   try {
     final interpreter = await Interpreter.fromAsset('assets/model.tflite');
     var wakeUp = (hour * 60) + minute;
@@ -8,7 +10,8 @@ Future<String> sleepPredict(hour, minute) async {
     // [Age,gender(M=1,F=0),wakeup time,sleep quality]
     var input = [
       [23, 1, wakeUp, sleep, 8.0]
-    ]; // ... your input data ...
+    ]; // input data
+    ///แสดงoutputของข้อมูลที่ถูกทํานาย
     var output = List.filled(1 * 1, 0).reshape([1, 1]);
     interpreter.run(input, output);
     var result = output.toList().map((list) => list[0]).toList();
@@ -21,6 +24,7 @@ Future<String> sleepPredict(hour, minute) async {
   return "";
 }
 
+///ฟังก์ชันsleepFormat ทําการแปลงข้อมูลจากการทํานายให้เป็นข้อมูลเวลาที่อ่านง่าย
 String sleepFormat(x) {
   var data = x[0];
   String hour = (data ~/ 60).toString();
@@ -36,6 +40,7 @@ String sleepFormat(x) {
   return item;
 }
 
+///ฟังก์ชันwakeupFormat ทําการแปลงข้อมูลจากชั่วโมงและนาทีให้กลายเป็นเวลา(ชั่วโมง:นาที)
 String wakeupFormat(x, y) {
   String hour = x.toString();
   String minute = y.toString();

@@ -6,9 +6,10 @@ import 'package:clock_app/helpers/clock_helper.dart';
 import 'package:clock_app/models/data_models/alarm_data_model.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 
+///ฟังก์ชันการสร้างการแจ้งเตือน
 Future<void> alamSchedule(AlarmDataModel alarm) async {
   await AwesomeNotifications().initialize(null, [
-    // notification icon
+    //สร้าง channel key ของการแจ้งเตือนนาฬิกาปลุก
     NotificationChannel(
       channelKey: 'scheduled',
       channelName: 'Basic notifications',
@@ -20,6 +21,7 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
       playSound: true,
     ),
   ]);
+  //สร้างการแจ้งเตือน('scheduled')
   await AwesomeNotifications().createNotification(
     schedule: NotificationCalendar(
       allowWhileIdle: true,
@@ -63,12 +65,15 @@ Future<void> alamSchedule(AlarmDataModel alarm) async {
   );
 }
 
+//ฟังก์ชันแสดงการแจ้งเตือนแบบเลื่อนปลุก
 void snooze() {
+  //นําเวลาล่าสุดมาเก็บใน snoozeTime
   DateTime snoozeTime = DateTime.now();
+  //บวกเวลาsnoozeTime ไปอีก1นาที(เลื่อนปลุก1นาที)
   snoozeTime = snoozeTime.add(const Duration(minutes: 1));
 
   AwesomeNotifications().initialize(null, [
-    // notification icon
+    //ฟังก์ชันการสร้างการแจ้งเตือนการเลื่อนปลุก
     NotificationChannel(
       channelKey: 'snooze',
       channelName: 'Basic notifications',
@@ -79,11 +84,12 @@ void snooze() {
       locked: true,
     ),
   ]);
+
+  ///สร้างการแจ้งเตือนการเลื่อนปลุก(snooze)
   AwesomeNotifications().createNotification(
       content: NotificationContent(
-        //simgple notification
         id: 10,
-        channelKey: 'snooze', //set configuration wuth key "basic"
+        channelKey: 'snooze',
         title: 'snooze',
         body: 'Next alarm at ${fromTimeToString(snoozeTime)}',
         autoDismissible: false,
@@ -101,7 +107,7 @@ void snooze() {
           enabled: true,
         ),
       ]);
-
+  //สร้างการแจ้งเตือน('scheduled')
   AwesomeNotifications().createNotification(
       schedule: NotificationCalendar(
         allowWhileIdle: true,
@@ -113,9 +119,8 @@ void snooze() {
         preciseAlarm: true,
       ),
       content: NotificationContent(
-        //simgple notification
         id: 20,
-        channelKey: 'scheduled', //set configuration wuth key "basic"
+        channelKey: 'scheduled',
         title: 'Alarm again  at ${fromTimeToString(snoozeTime)}',
         body: 'Ring Ring!!!',
         autoDismissible: false,
